@@ -23,7 +23,6 @@ namespace TournamentTable.Model.Core
             Teams = teams;
         }
 
-        // Перегрузка метода Match #1
         public void Match(Team team1, Team team2)
         {
             var rand = new Random();
@@ -57,14 +56,12 @@ namespace TournamentTable.Model.Core
             }
         }
 
-        // Пузырьковая сортировка по алфавиту (SortDefault)
         public void SortDefault()
         {
             for (int i = 0; i < Teams.Length - 1; i++)
             {
                 for (int j = 0; j < Teams.Length - i - 1; j++)
                 {
-                    // Если имя текущей команды по алфавиту дальше, чем следующей — меняем местами
                     if (string.Compare(Teams[j].Name, Teams[j + 1].Name, StringComparison.OrdinalIgnoreCase) > 0)
                     {
                         T temp = Teams[j];
@@ -75,7 +72,6 @@ namespace TournamentTable.Model.Core
             }
         }
 
-        // Пузырьковая сортировка по очкам (SortByScore)
         public void SortByScore()
         {
             for (int i = 0; i < Teams.Length - 1; i++)
@@ -84,13 +80,10 @@ namespace TournamentTable.Model.Core
                 {
                     bool needSwap = false;
 
-                    // 1. Используем наш перегруженный оператор <
-                    // Если текущая команда "хуже" следующей, её нужно опустить вниз (поменять местами)
                     if (Teams[j] < Teams[j + 1])
                     {
                         needSwap = true;
                     }
-                    // 2. Если по операторам они равны (очки, победы, ничьи совпали), проверяем личную встречу
                     else if (!(Teams[j] > Teams[j + 1]))
                     {
                         var h2h = Matches.FirstOrDefault(m =>
@@ -101,11 +94,11 @@ namespace TournamentTable.Model.Core
                         {
                             if (h2h.Team1Name == Teams[j].Name)
                             {
-                                if (h2h.Score1 < h2h.Score2) needSwap = true; // Текущая проиграла личную встречу
+                                if (h2h.Score1 < h2h.Score2) needSwap = true; 
                             }
                             else
                             {
-                                if (h2h.Score2 < h2h.Score1) needSwap = true; // Текущая проиграла личную встречу
+                                if (h2h.Score2 < h2h.Score1) needSwap = true; 
                             }
                         }
                     }
@@ -120,13 +113,12 @@ namespace TournamentTable.Model.Core
             }
         }
 
-        // Расчет мест с учетом пропусков
         public Dictionary<string, int> GetTeamsPositions()
         {
             var positions = new Dictionary<string, int>();
             if (Teams.Length == 0) return positions;
 
-            SortByScore(); // Сначала сортируем пузырьком
+            SortByScore();
 
             int currentPlace = 1;
             positions[Teams[0].Name] = currentPlace;
@@ -136,7 +128,6 @@ namespace TournamentTable.Model.Core
                 T currentTeam = Teams[i];
                 T previousTeam = Teams[i - 1];
 
-                // Полное равенство
                 bool isFullyEqual = (currentTeam.CalculatePoints == previousTeam.CalculatePoints) &&
                                     (currentTeam.Wins == previousTeam.Wins) &&
                                     (currentTeam.Draws == previousTeam.Draws);
@@ -156,7 +147,7 @@ namespace TournamentTable.Model.Core
                 }
                 else
                 {
-                    positions[currentTeam.Name] = i + 1; // Пропуск места
+                    positions[currentTeam.Name] = i + 1;
                 }
             }
             return positions;

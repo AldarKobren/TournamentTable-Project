@@ -44,6 +44,7 @@
     <Compile Include="Core\BasketballTeam.cs" />
     <Compile Include="Core\FootballTeam.cs" />
     <Compile Include="Core\ITable.cs" />
+    <Compile Include="Core\Match.cs" />
     <Compile Include="Core\Team.cs" />
     <Compile Include="Core\TournamentTable.cs" />
     <Compile Include="Core\VolleyballTeam.cs" />
