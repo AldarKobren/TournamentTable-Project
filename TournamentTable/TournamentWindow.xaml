@@ -1,0 +1,59 @@
+﻿<Window x:Class="TournamentTable.TournamentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Турнирная таблица" Height="500" Width="850"
+        WindowStartupLocation="CenterScreen"
+        Background="#F9FAFB">
+
+    <Grid Margin="15">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="220"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Margin="0,0,15,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock x:Name="txtTournamentTitle" Text="Загрузка турнира..." 
+                       FontSize="20" FontWeight="Bold" Margin="0,0,0,15" Foreground="#1F2937"/>
+
+            <DataGrid x:Name="dgTeams" Grid.Row="1" AutoGenerateColumns="False" 
+                      IsReadOnly="True" GridLinesVisibility="Horizontal" 
+                      Background="White" RowHeight="35" FontSize="13" AlternatingRowBackground="#F3F4F6">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Команда" Binding="{Binding Name}" Width="2*"/>
+                    <DataGridTextColumn Header="Матчи" Binding="{Binding MatchesPlayed}" Width="*"/>
+                    <DataGridTextColumn Header="Победы" Binding="{Binding Wins}" Width="*"/>
+                    <DataGridTextColumn Header="Ничьи" Binding="{Binding Draws}" Width="*"/>
+                    <DataGridTextColumn Header="Поражения" Binding="{Binding Losses}" Width="*"/>
+                    <DataGridTextColumn Header="Очки" Binding="{Binding CalculatePoints}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="15" 
+                BorderBrush="#E5E7EB" BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="Управление" FontSize="16" FontWeight="Bold" 
+                           Margin="0,0,0,20" Foreground="#374151" HorizontalAlignment="Center"/>
+
+                <Button x:Name="btnSortByName" Content="🔤 Отсортировать по имени" Height="40" Margin="0,0,0,12"
+                        Background="#4B5563" Foreground="White" FontWeight="SemiBold" 
+                        Click="BtnSortByName_Click"/>
+
+                <Button x:Name="btnSortByScore" Content="🔥 Отсортировать по очкам" Height="40" Margin="0,0,0,25"
+                        Background="#3B82F6" Foreground="White" FontWeight="Bold" 
+                        Click="BtnSortByScore_Click"/>
+
+                <Separator Margin="0,0,0,20" Background="#E5E7EB"/>
+
+                <Button x:Name="btnSimulateMatch" Content="⚽ Симулировать матч" Height="40"
+                        Background="#10B981" Foreground="White" FontWeight="SemiBold" 
+                        Click="BtnSimulateMatch_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
