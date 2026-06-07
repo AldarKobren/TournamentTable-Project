@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace TournamentTable.Model.Core
 {
@@ -11,6 +8,7 @@ namespace TournamentTable.Model.Core
     {
         public string Title { get; set; }
         public int SeasonYear { get; set; }
+        public T[] DisqualifiedTeams { get; set; } = new T[0];
         public T[] Teams { get; set; } = Array.Empty<T>();
         public Match[] Matches { get; set; } = Array.Empty<Match>();
 
@@ -29,7 +27,6 @@ namespace TournamentTable.Model.Core
             Match(team1, team2, rand.Next(0, 4), rand.Next(0, 4));
         }
 
-        // Перегрузка метода Match #2
         public void Match(Team team1, Team team2, int score1, int score2)
         {
             if (team1 == null || team2 == null)
@@ -94,11 +91,11 @@ namespace TournamentTable.Model.Core
                         {
                             if (h2h.Team1Name == Teams[j].Name)
                             {
-                                if (h2h.Score1 < h2h.Score2) needSwap = true; 
+                                if (h2h.Score1 < h2h.Score2) needSwap = true;
                             }
                             else
                             {
-                                if (h2h.Score2 < h2h.Score1) needSwap = true; 
+                                if (h2h.Score2 < h2h.Score1) needSwap = true;
                             }
                         }
                     }

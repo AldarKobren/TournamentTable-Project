@@ -32,15 +32,10 @@ namespace TournamentTable
 
             try
             {
-                if (!File.Exists(filePath))
-                {
-                    GenerateDefaultJsonData(sport, year, filePath);
-                }
+                EnsureAllDataGenerated(folderPath);
 
                 TournamentWindow tableWindow = new TournamentWindow(filePath, sport, year);
-
                 tableWindow.Show();
-
                 this.Close();
             }
             catch (Exception ex)
@@ -49,57 +44,91 @@ namespace TournamentTable
             }
         }
 
-        private void GenerateDefaultJsonData(string sport, int year, string filePath)
+        /// <summary>
+        ///
+        /// </summary>
+        private void EnsureAllDataGenerated(string folderPath)
         {
-            string title = $"{sport} - Сезон {year}";
-
-            if (sport == "Футбол")
+            if (!Directory.Exists(folderPath))
             {
-                var teams = new FootballTeam[]
-                {
-                    new FootballTeam("Зенит"), new FootballTeam("Спартак"),
-                    new FootballTeam("ЦСКА"), new FootballTeam("Локомотив"),
-                    new FootballTeam("Краснодар"), new FootballTeam("Динамо")
-                };
-                var tournament = new TournamentTable<FootballTeam>(title, year, teams);
-
-                Random r = new Random();
-                tournament.Match(teams[0], teams[1], r.Next(0, 4), r.Next(0, 4));
-                tournament.Match(teams[2], teams[3], r.Next(0, 4), r.Next(0, 4));
-
-                tournament.SortDefault(); 
-
-                var serializer = new JsonTournamentSerializer<TournamentTable<FootballTeam>>();
-                serializer.Serialize(filePath, tournament);
+                Directory.CreateDirectory(folderPath);
             }
-            else if (sport == "Баскетбол")
+
+            int[] years = { 2024, 2025, 2026 };
+            Random rand = new Random();
+
+            string[] footballNames = { "Зенит", "Спартак", "ЦСКА", "Локомотив", "Краснодар", "Динамо", "ГазМяс" };
+            string[] basketballNames = { "УНИКС", "ЦСКА Москва", "Зенит Баскет", "Локомотив-Кубань", "Парма", "ГазМяс" };
+            string[] volleyballNames = { "Зенит Казань", "Динамо Москва", "Локомотив Новосиб", "Белогорье", "Факел", "ГазМяс" };
+
+            foreach (int year in years)
             {
-                var teams = new BasketballTeam[]
+                //ФУТБОЛ
+                string fbPath = Path.Combine(folderPath, $"Футбол_{year}.json");
+                if (!File.Exists(fbPath))
                 {
-                    new BasketballTeam("УНИКС"), new BasketballTeam("ЦСКА Москва"),
-                    new BasketballTeam("Зенит Баскет"), new BasketballTeam("Локомотив-Кубань")
-                };
-                var tournament = new TournamentTable<BasketballTeam>(title, year, teams);
+                    var teams = new FootballTeam[footballNames.Length];
+                    for (int i = 0; i < footballNames.Length; i++) teams[i] = new FootballTeam(footballNames[i]);
 
-                tournament.SortDefault();
+                    var tournament = new TournamentTable<FootballTeam>($"ЧР по футболу - {year}", year, teams);
+                    AutoPlayRoundRobin(tournament, teams, rand, isDrawAllowed: true);
 
-                var serializer = new JsonTournamentSerializer<TournamentTable<BasketballTeam>>();
-                serializer.Serialize(filePath, tournament);
+                    var serializer = new JsonTournamentSerializer<TournamentTable<FootballTeam>>();
+                    serializer.Serialize(fbPath, tournament);
+                }
+
+                //БАСКЕТБОЛ
+                string bbPath = Path.Combine(folderPath, $"Баскетбол_{year}.json");
+                if (!File.Exists(bbPath))
+                {
+                    var teams = new BasketballTeam[basketballNames.Length];
+                    for (int i = 0; i < basketballNames.Length; i++) teams[i] = new BasketballTeam(basketballNames[i]);
+
+                    var tournament = new TournamentTable<BasketballTeam>($"Единая лига ВТБ - {year}", year, teams);
+                    AutoPlayRoundRobin(tournament, teams, rand, isDrawAllowed: false); 
+
+                    var serializer = new JsonTournamentSerializer<TournamentTable<BasketballTeam>>();
+                    serializer.Serialize(bbPath, tournament);
+                }
+
+                //ВОЛЕЙБОЛ
+                string vbPath = Path.Combine(folderPath, $"Волейбол_{year}.json");
+                if (!File.Exists(vbPath))
+                {
+                    var teams = new VolleyballTeam[volleyballNames.Length];
+                    for (int i = 0; i < volleyballNames.Length; i++) teams[i] = new VolleyballTeam(volleyballNames[i]);
+
+                    var tournament = new TournamentTable<VolleyballTeam>($"Суперлига по волейболу - {year}", year, teams);
+                    AutoPlayRoundRobin(tournament, teams, rand, isDrawAllowed: false);
+
+                    var serializer = new JsonTournamentSerializer<TournamentTable<VolleyballTeam>>();
+                    serializer.Serialize(vbPath, tournament);
+                }
             }
-            else
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        private void AutoPlayRoundRobin<T>(TournamentTable<T> tournament, T[] teams, Random rand, bool isDrawAllowed) where T : Team
+        {
+            for (int i = 0; i < teams.Length; i++)
             {
-                var teams = new VolleyballTeam[]
+                for (int j = i + 1; j < teams.Length; j++)
                 {
-                    new VolleyballTeam("Зенит Казань"), new VolleyballTeam("Динамо Москва"),
-                    new VolleyballTeam("Локомотив Новосибирск"), new VolleyballTeam("Белогорье")
-                };
-                var tournament = new TournamentTable<VolleyballTeam>(title, year, teams);
+                    int score1 = rand.Next(0, 4);
+                    int score2 = rand.Next(0, 4);
 
-                tournament.SortDefault();
+                    if (!isDrawAllowed && score1 == score2)
+                    {
+                        score1 += rand.Next(1, 3);
+                    }
 
-                var serializer = new JsonTournamentSerializer<TournamentTable<VolleyballTeam>>();
-                serializer.Serialize(filePath, tournament);
+                    tournament.Match(teams[i], teams[j], score1, score2);
+                }
             }
+
+            tournament.SortDefault();
         }
     }
 }

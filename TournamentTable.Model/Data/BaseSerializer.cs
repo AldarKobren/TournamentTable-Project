@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TournamentTable.Model.Data
 {
-    public abstract class BaseSerializer<T> : IDataSerializer<T>
+    public abstract class BaseSerializer<T>
     {
         public abstract void Serialize(string filePath, T data);
         public abstract T Deserialize(string filePath);
