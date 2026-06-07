@@ -29,6 +29,7 @@ namespace TournamentTable.Model.Core
         public int Draws { get; set; }
         public int Losses { get; set; }
         public int MatchesPlayed => Wins + Draws + Losses;
+        public bool IsDisqualified { get; set; } = false;
         public abstract int CalculatePoints { get; }
         protected Team(string name)
         {
