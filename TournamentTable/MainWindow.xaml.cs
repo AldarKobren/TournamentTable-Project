@@ -85,7 +85,7 @@ namespace TournamentTable
                     for (int i = 0; i < basketballNames.Length; i++) teams[i] = new BasketballTeam(basketballNames[i]);
 
                     var tournament = new TournamentTable<BasketballTeam>($"Единая лига ВТБ - {year}", year, teams);
-                    AutoPlayRoundRobin(tournament, teams, rand, isDrawAllowed: false); 
+                    AutoPlayRoundRobin(tournament, teams, rand, isDrawAllowed: false);
 
                     var serializer = new JsonTournamentSerializer<TournamentTable<BasketballTeam>>();
                     serializer.Serialize(bbPath, tournament);

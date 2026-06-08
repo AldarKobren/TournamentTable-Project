@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using TournamentTable.Model.Core;
@@ -26,6 +29,7 @@ namespace TournamentTable
 
             LoadData();
 
+            // Привязываем выпадающие списки выбора команд для матча к исходному списку команд
             cbTeam1.ItemsSource = _tournament.Teams;
             cbTeam2.ItemsSource = _tournament.Teams;
         }
@@ -66,11 +70,46 @@ namespace TournamentTable
             }
         }
 
+        // Ключевое изменение: формируем данные для правильного отображения № и Очков
         private void RefreshGrid()
         {
             dgTeams.ItemsSource = null;
-            dgTeams.ItemsSource = _tournament.Teams;
 
+            if (_tournament != null && _tournament.Teams != null)
+            {
+                try
+                {
+                    // Получаем словарь мест от модели: Dictionary<string, int>, где ключ — имя команды
+                    Dictionary<string, int> positions = _tournament.GetTeamsPositions();
+
+                    // Приводим dynamic-коллекцию к IEnumerable, чтобы работал LINQ
+                    var teamsList = (_tournament.Teams as IEnumerable)?.Cast<dynamic>();
+
+                    if (teamsList != null)
+                    {
+                        // Трансформируем элементы в анонимные объекты, свойства которых строго совпадают с Binding в XAML
+                        var displayItems = teamsList.Select(team => new
+                        {
+                            Position = positions.ContainsKey(team.Name) ? positions[team.Name].ToString() : "-",
+                            Name = team.Name,
+                            MatchesPlayed = team.MatchesPlayed,
+                            Wins = team.Wins,
+                            Draws = team.Draws,
+                            Losses = team.Losses,
+                            Points = team.CalculatePoints // Подтягиваем рассчитанные очки
+                        }).ToList();
+
+                        dgTeams.ItemsSource = displayItems;
+                    }
+                }
+                catch
+                {
+                    // Резервный вариант: если GetTeamsPositions еще не реализован в модели, выводим как есть
+                    dgTeams.ItemsSource = _tournament.Teams;
+                }
+            }
+
+            // Обновляем таблицу дисквалифицированных команд
             if (this.FindName("dgDisqualified") is DataGrid dg)
             {
                 dg.ItemsSource = null;
@@ -103,16 +142,26 @@ namespace TournamentTable
 
         private void BtnDisqualify_Click(object sender, RoutedEventArgs e)
         {
-            if (dgTeams.SelectedItem is Team selected)
+            // Так как в ItemsSource теперь анонимные объекты, dgTeams.SelectedItem возвращает object.
+            // Используем динамическое приведение, чтобы вытащить свойство Name и найти команду.
+            if (dgTeams.SelectedItem is var selectedObj && selectedObj != null)
             {
-                _tournament.Disqual(selected);
-                RefreshGrid();
-                SaveData();
+                string selectedName = ((dynamic)selectedObj).Name;
+
+                // Ищем реальный объект команды в списке турнира по имени
+                var teamsList = (_tournament.Teams as IEnumerable)?.Cast<dynamic>();
+                var selectedTeam = teamsList?.FirstOrDefault(t => t.Name == selectedName);
+
+                if (selectedTeam != null)
+                {
+                    _tournament.Disqual(selectedTeam);
+                    RefreshGrid();
+                    SaveData();
+                    return;
+                }
             }
-            else
-            {
-                MessageBox.Show("Выберите команду в основной таблице!");
-            }
+
+            MessageBox.Show("Выберите команду в основной таблице!");
         }
 
         private void BtnRestore_Click(object sender, RoutedEventArgs e)
@@ -143,6 +192,5 @@ namespace TournamentTable
             SaveData();
         }
 
-        private void BtnCompare_Click(object sender, RoutedEventArgs e) { /* ... */ }
     }
 }

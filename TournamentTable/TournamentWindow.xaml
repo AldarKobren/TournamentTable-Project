@@ -27,12 +27,13 @@
                       IsReadOnly="True" GridLinesVisibility="Horizontal" 
                       Background="White" RowHeight="35" FontSize="13" AlternatingRowBackground="#F3F4F6">
                 <DataGrid.Columns>
+                    <DataGridTextColumn Header="№" Binding="{Binding Position}" Width="50"/>
                     <DataGridTextColumn Header="Команда" Binding="{Binding Name}" Width="2*"/>
                     <DataGridTextColumn Header="Матчи" Binding="{Binding MatchesPlayed}" Width="*"/>
                     <DataGridTextColumn Header="Победы" Binding="{Binding Wins}" Width="*"/>
                     <DataGridTextColumn Header="Ничьи" Binding="{Binding Draws}" Width="*"/>
                     <DataGridTextColumn Header="Поражения" Binding="{Binding Losses}" Width="*"/>
-                    <DataGridTextColumn Header="Очки" Binding="{Binding CalculatePoints}" Width="*"/>
+                    <DataGridTextColumn Header="Очки" Binding="{Binding Points}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
 

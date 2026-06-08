@@ -61,9 +61,7 @@ namespace TournamentTable.Model.Core
                 {
                     if (string.Compare(Teams[j].Name, Teams[j + 1].Name, StringComparison.OrdinalIgnoreCase) > 0)
                     {
-                        T temp = Teams[j];
-                        Teams[j] = Teams[j + 1];
-                        Teams[j + 1] = temp;
+                        (Teams[j], Teams[j + 1]) = (Teams[j + 1], Teams[j]);
                     }
                 }
             }
@@ -115,15 +113,20 @@ namespace TournamentTable.Model.Core
             var positions = new Dictionary<string, int>();
             if (Teams.Length == 0) return positions;
 
-            SortByScore();
+            var sortedForPlaces = Teams
+                .OrderByDescending(t => t.CalculatePoints)
+                .ThenByDescending(t => t.Wins)
+                .ThenByDescending(t => t.Draws)
+                .ThenBy(t => t.Name)
+                .ToList();
 
-            int currentPlace = 1;
-            positions[Teams[0].Name] = currentPlace;
+            int displayPlace = 1;
+            positions[sortedForPlaces[0].Name] = displayPlace;
 
-            for (int i = 1; i < Teams.Length; i++)
+            for (int i = 1; i < sortedForPlaces.Count; i++)
             {
-                T currentTeam = Teams[i];
-                T previousTeam = Teams[i - 1];
+                T currentTeam = sortedForPlaces[i];
+                T previousTeam = sortedForPlaces[i - 1];
 
                 bool isFullyEqual = (currentTeam.CalculatePoints == previousTeam.CalculatePoints) &&
                                     (currentTeam.Wins == previousTeam.Wins) &&
@@ -135,7 +138,10 @@ namespace TournamentTable.Model.Core
                         (m.Team1Name == currentTeam.Name && m.Team2Name == previousTeam.Name) ||
                         (m.Team1Name == previousTeam.Name && m.Team2Name == currentTeam.Name));
 
-                    if (h2h != null && h2h.Score1 != h2h.Score2) isFullyEqual = false;
+                    if (h2h != null && h2h.Score1 != h2h.Score2)
+                    {
+                        isFullyEqual = false;
+                    }
                 }
 
                 if (isFullyEqual)
