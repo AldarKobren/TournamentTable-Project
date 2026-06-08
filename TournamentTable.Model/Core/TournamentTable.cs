@@ -113,15 +113,20 @@ namespace TournamentTable.Model.Core
             var positions = new Dictionary<string, int>();
             if (Teams.Length == 0) return positions;
 
-            //SortByScore();
+            var sortedForPlaces = Teams
+                .OrderByDescending(t => t.CalculatePoints)
+                .ThenByDescending(t => t.Wins)
+                .ThenByDescending(t => t.Draws)
+                .ThenBy(t => t.Name)
+                .ToList();
 
             int displayPlace = 1;
-            positions[Teams[0].Name] = displayPlace;
+            positions[sortedForPlaces[0].Name] = displayPlace;
 
-            for (int i = 1; i < Teams.Length; i++)
+            for (int i = 1; i < sortedForPlaces.Count; i++)
             {
-                T currentTeam = Teams[i];
-                T previousTeam = Teams[i - 1];
+                T currentTeam = sortedForPlaces[i];
+                T previousTeam = sortedForPlaces[i - 1];
 
                 bool isFullyEqual = (currentTeam.CalculatePoints == previousTeam.CalculatePoints) &&
                                     (currentTeam.Wins == previousTeam.Wins) &&
