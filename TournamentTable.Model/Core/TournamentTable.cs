@@ -61,9 +61,7 @@ namespace TournamentTable.Model.Core
                 {
                     if (string.Compare(Teams[j].Name, Teams[j + 1].Name, StringComparison.OrdinalIgnoreCase) > 0)
                     {
-                        T temp = Teams[j];
-                        Teams[j] = Teams[j + 1];
-                        Teams[j + 1] = temp;
+                        (Teams[j], Teams[j + 1]) = (Teams[j + 1], Teams[j]);
                     }
                 }
             }
@@ -117,8 +115,8 @@ namespace TournamentTable.Model.Core
 
             SortByScore();
 
-            int currentPlace = 1;
-            positions[Teams[0].Name] = currentPlace;
+            int displayPlace = 1;
+            positions[Teams[0].Name] = displayPlace;
 
             for (int i = 1; i < Teams.Length; i++)
             {
@@ -135,7 +133,10 @@ namespace TournamentTable.Model.Core
                         (m.Team1Name == currentTeam.Name && m.Team2Name == previousTeam.Name) ||
                         (m.Team1Name == previousTeam.Name && m.Team2Name == currentTeam.Name));
 
-                    if (h2h != null && h2h.Score1 != h2h.Score2) isFullyEqual = false;
+                    if (h2h != null && h2h.Score1 != h2h.Score2)
+                    {
+                        isFullyEqual = false;
+                    }
                 }
 
                 if (isFullyEqual)
