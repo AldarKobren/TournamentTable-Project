@@ -113,7 +113,7 @@ namespace TournamentTable.Model.Core
             var positions = new Dictionary<string, int>();
             if (Teams.Length == 0) return positions;
 
-            SortByScore();
+            //SortByScore();
 
             int displayPlace = 1;
             positions[Teams[0].Name] = displayPlace;
